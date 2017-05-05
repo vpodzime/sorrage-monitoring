@@ -23,6 +23,7 @@
  */
 
 #include <error.h>
+#include <string.h>
 #include <systemd/sd-journal.h>
 
 /**
@@ -32,10 +33,34 @@
  * reports every such event to the journal using structured logging.
  */
 
+typedef struct _EventInfo {
+    char *event;
+    char *state;
+    char *details;
+    int  priority;
+    char *priority_desc;
+} EventInfo;
+
+#define N_INFOS 9
+EventInfo event_infos[N_INFOS] = {
+    {"DeviceDisappeared", "deactivated", "MD array was deactivated", LOG_WARNING, "warning"},
+    {"RebuildStarted", "rebuilding", "MD array is rebuilding", LOG_INFO, "info"},
+    {"RebuildFinished", "rebuilt", "MD array is now rebuilt", LOG_INFO, "info"},
+    {"Fail", "failed", "Device was marked as failed", LOG_WARNING, "warning"},
+    {"FailSpare", "failed", "Device was marked as failed", LOG_WARNING, "warning"},
+    {"SpareActive", "activated", "Device was activated as part of an MD RAID", LOG_INFO, "info"},
+    {"NewArray", "activated", "MD array was activated", LOG_INFO, "info"},
+    {"DegradedArray", "degraded", "MD array is degraded", LOG_WARNING, "warning"},
+    {"SparesMissing", "missing spares", "MD array is missing spares", LOG_WARNING, "warning"},
+};
+
 int main (int argc, char *argv[]) {
     char *event = NULL;
     char *md_dev = NULL;
     char *member = NULL;
+    int i = -1;
+    EventInfo *info = NULL;
+    int priority = -1;
     int ret = -1;
 
     if (argc < 3)
@@ -47,12 +72,30 @@ int main (int argc, char *argv[]) {
     if (argc > 3)
         member = argv[3];
 
-    ret = sd_journal_send ("MESSAGE_ID=3183267b90074a4595e91daef0e01462",
-                           "MESSAGE=mdadm reported %s on the MD device %s", event, md_dev,
-                           "SOURCE=MD RAID", "SOURCE_MAN=mdadm(8)",
-                           "DEVICE=%s", md_dev, "STATE=%s", event,
-                           "PRIORITY=%i", LOG_WARNING, "PRIORITY_DESC=warning",
-                           NULL);
+    for (i=0; !info && i < N_INFOS; i++)
+        if (strcmp (event, event_infos[i].event) == 0)
+            info = event_infos + i;
+
+    if (info) {
+        if (!member) {
+            ret = sd_journal_send ("MESSAGE_ID=3183267b90074a4595e91daef0e01462",
+                                   "MESSAGE=mdadm reported %s on the MD device %s", event, md_dev,
+                                   "SOURCE=MD RAID", "SOURCE_MAN=mdadm(8)",
+                                   "DEVICE=%s", md_dev, "STATE=%s", info->state,
+                                   "PRIORITY=%i", info->priority, "PRIORITY_DESC=%s", info->priority_desc,
+                                   "DETAILS=%s", info->details,
+                                   NULL);
+        } else {
+            ret = sd_journal_send ("MESSAGE_ID=3183267b90074a4595e91daef0e01462",
+                                   "MESSAGE=mdadm reported %s on the device %s", event, member,
+                                   "SOURCE=MD RAID", "SOURCE_MAN=mdadm(8)",
+                                   "DEVICE=%s", member, "STATE=%s", info->state,
+                                   "PRIORITY=%i", info->priority, "PRIORITY_DESC=%s", info->priority_desc,
+                                   "DETAILS=%s", info->details,
+                                   NULL);
+        }
+    } else
+        error (1, -ret, "Unrecognized event reported");
 
     if (ret != 0)
         error (2, -ret, "Failed to report the event using journal");
