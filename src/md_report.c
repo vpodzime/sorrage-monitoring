@@ -101,7 +101,11 @@ int main (int argc, char *argv[]) {
                                    NULL);
         }
     } else
-        error (1, -ret, "Unrecognized event reported");
+        ret = sd_journal_send ("MESSAGE=unrecognized or ignored event %s reported by mdadm on device %s",
+                               event, md_dev,
+                               "PRIORITY=%i", LOG_INFO,
+                               md_fields (event, md_dev, member ? member : ""),
+                               NULL);
 
     if (ret != 0)
         error (2, -ret, "Failed to report the event using journal");
