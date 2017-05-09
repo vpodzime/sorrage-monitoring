@@ -76,7 +76,7 @@ void send_notification (sd_journal *j) {
     } else
         details += 8;
 
-    ret = asprintf (&cmd, "notify-send 'Storage event reported by %s' '%s is %s: %s'",
+    ret = asprintf (&cmd, "notify-send -i drive-harddisk 'Storage event reported by %s' '%s is %s: %s'",
                     source, device, state, details);
     if (ret > 0) {
         system (cmd);
