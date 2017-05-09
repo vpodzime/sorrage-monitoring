@@ -45,6 +45,8 @@ const char* log_lvl_desc[] = {"emergency", "alert", "critical", "error", "warnin
 
 #define N_INFOS 9
 EventInfo event_infos[N_INFOS] = {
+    /* XXX: Should use syslog priority specified for events in man:mdadm(8)? All
+            look more critical there */
     {"DeviceDisappeared", "deactivated", "MD array was deactivated", LOG_WARNING},
     {"RebuildStarted", "rebuilding", "MD array is rebuilding", LOG_INFO},
     {"RebuildFinished", "rebuilt", "MD array is now rebuilt", LOG_INFO},
@@ -52,7 +54,7 @@ EventInfo event_infos[N_INFOS] = {
     {"FailSpare", "failed", "Device was marked as failed", LOG_WARNING},
     {"SpareActive", "activated", "Device was activated as part of an MD RAID", LOG_INFO},
     {"NewArray", "activated", "MD array was activated", LOG_INFO},
-    {"DegradedArray", "degraded", "MD array is degraded", LOG_WARNING},
+    {"DegradedArray", "degraded", "MD array is degraded", LOG_CRIT},
     {"SparesMissing", "missing spares", "MD array is missing spares", LOG_WARNING},
     // RebuildNN   -- rebuild progress reporting
     // MoveSpare   -- spare moved from one array to another one
