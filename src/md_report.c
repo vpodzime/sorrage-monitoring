@@ -56,6 +56,8 @@ EventInfo event_infos[N_INFOS] = {
     {"SparesMissing", "missing spares", "MD array is missing spares", LOG_WARNING},
 };
 
+#define md_fields(event, md_dev, member) "MD_EVENT=%s", event, "MD_ARRAY=%s", md_dev, "MD_MEMBER=%s", member
+
 int main (int argc, char *argv[]) {
     char *event = NULL;
     char *md_dev = NULL;
@@ -86,6 +88,7 @@ int main (int argc, char *argv[]) {
                                    "DEVICE=%s", md_dev, "STATE=%s", info->state,
                                    "PRIORITY=%i", info->priority, "PRIORITY_DESC=%s", log_lvl_desc[info->priority],
                                    "DETAILS=%s", info->details,
+                                   md_fields (event, md_dev, ""),
                                    NULL);
         } else {
             ret = sd_journal_send ("MESSAGE_ID=3183267b90074a4595e91daef0e01462",
@@ -94,6 +97,7 @@ int main (int argc, char *argv[]) {
                                    "DEVICE=%s", member, "STATE=%s", info->state,
                                    "PRIORITY=%i", info->priority, "PRIORITY_DESC=%s", log_lvl_desc[info->priority],
                                    "DETAILS=%s", info->details,
+                                   md_fields (event, md_dev, member),
                                    NULL);
         }
     } else
