@@ -54,6 +54,9 @@ EventInfo event_infos[N_INFOS] = {
     {"NewArray", "activated", "MD array was activated", LOG_INFO},
     {"DegradedArray", "degraded", "MD array is degraded", LOG_WARNING},
     {"SparesMissing", "missing spares", "MD array is missing spares", LOG_WARNING},
+    // RebuildNN   -- rebuild progress reporting
+    // MoveSpare   -- spare moved from one array to another one
+    // TestMessage -- array found at startup and '--test' was given
 };
 
 #define md_fields(event, md_dev, member) "MD_EVENT=%s", event, "MD_ARRAY=%s", md_dev, "MD_MEMBER=%s", member
