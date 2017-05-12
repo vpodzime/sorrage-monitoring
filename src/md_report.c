@@ -61,7 +61,9 @@ EventInfo event_infos[N_INFOS] = {
     // TestMessage -- array found at startup and '--test' was given
 };
 
-#define md_fields(event, md_dev, member) "MD_EVENT=%s", event, "MD_ARRAY=%s", md_dev, "MD_MEMBER=%s", member
+#define md_fields(event, md_dev, member) "MD_EVENT=%s", event, \
+                                         "MD_ARRAY=%s", md_dev, \
+                                         "MD_MEMBER=%s", member
 
 int main (int argc, char *argv[]) {
     char *event = NULL;
@@ -91,7 +93,8 @@ int main (int argc, char *argv[]) {
                                    "MESSAGE=mdadm reported %s on the MD device %s", event, md_dev,
                                    "SOURCE=MD RAID", "SOURCE_MAN=mdadm(8)",
                                    "DEVICE=%s", md_dev, "STATE=%s", info->state,
-                                   "PRIORITY=%i", info->priority, "PRIORITY_DESC=%s", log_lvl_desc[info->priority],
+                                   "PRIORITY=%i", info->priority,
+                                   "PRIORITY_DESC=%s", log_lvl_desc[info->priority],
                                    "DETAILS=%s", info->details,
                                    md_fields (event, md_dev, ""),
                                    NULL);
